@@ -1,62 +1,24 @@
 import express from 'express';
+import { createHotel, deleteHotel, getAllHotels, getHotel, updateHotel } from '../controllers/hotels.js';
 import Hotels from '../models/Hotels.js';
+import { createError } from '../utils/error.js';
+import { verifyAdmin, verifyToken } from '../utils/verifyToken.js';
 
 const router=express.Router();
 
 //create
-router.post('/',async (req,res)=>{
-    const newHotel= new Hotels(req.body);
-    try{
-        const savedHotel= await newHotel.save();
-        res.status(200).json(savedHotel);
-    }catch(err){
-        res.status(500).json(err);
-    }
-})
+router.post('/',verifyToken,verifyAdmin,createHotel);
 
 //update
-router.put('/:id',async (req,res)=>{
-    // const newHotel= new Hotels(req.body);
-    try{
-        const updatedHotel= await Hotels.findByIdAndUpdate(req.params.id,{$set:req.body},{new:true});
-        // new:true needed coz findbyid returns prev document
-        res.status(200).json(updatedHotel);
-    }catch(err){
-        res.status(500).json(err);
-    }
-})
+router.put('/:id',verifyToken,verifyAdmin,updateHotel)
 
 //delete
-router.delete('/:id',async (req,res)=>{
-    // const newHotel= new Hotels(req.body);
-    try{
-        await Hotels.findByIdAndDelete(req.params.id);
-        res.status(200).json('hotel deleted');
-    }catch(err){
-        res.status(500).json(err);
-    }
-})
+router.delete('/:id',verifyToken,verifyAdmin,deleteHotel)
 
 //get
-router.get('/:id',async (req,res)=>{
-    // const newHotel= new Hotels(req.body);
-    try{
-        const hotel= await Hotels.findById(req.params.id);
-        res.status(200).json(hotel);
-    }catch(err){
-        res.status(500).json(err);
-    }
-})
+router.get('/:id',getHotel)
 
 //get all
-router.get('/',async (req,res)=>{
-    // const newHotel= new Hotels(req.body);
-    try{
-        const hotels= await Hotels.find(req.params.id);
-        res.status(200).json(hotels);
-    }catch(err){
-        res.status(500).json(err);
-    }
-})
+router.get('/',getAllHotels)
 
 export default router;
